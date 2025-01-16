@@ -42,7 +42,7 @@ with details:
     st.table(selected_pokemon[['name', 'species', 'height_m', 'weight_kg', 'catch_rate']])
 
 if pokedex_num  < 899:
-    image_url_id = "0" * (3 - pokedex_num) + str(pokedex_num) + ".png"
+    image_url_id = "0" * (3 - len(str(pokedex_num))) + str(pokedex_num) + ".png"
 else:
     st.warning('Not a valid pokedex number!')
 
@@ -53,7 +53,6 @@ with image:
     """)
     st.caption('Image credits: https://www.pokemon.com')
     
-
 sample_pokemon = df.sample(5)
 sample_pokemon = pd.concat([sample_pokemon, selected_pokemon])
 
