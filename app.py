@@ -2,35 +2,18 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# search_history = {}
-# search_counter = 0
-# def save_search(value):
-#     search_counter += 1
-#     search_history[str(search_counter)] = {
-#         'pokedex_num' : pokedex_num, 
-#         'image_url_id' : image_url_id,
-#     }
-    
 df = pd.read_csv('pokemon.csv')
-# df
-
-# Cleaning df - remove Mega Pokemon NOT needed!
-search_num = 0
-
-# text_input restrict to numbers - later
 
 st.markdown('''   
 # Pokemon Profiler
+Find out more about your favourite pokemons with our app!
 ''')
-##### Enter the pokedex number of the pokemon you would like to look up below.
-user_input, icon = st.columns(2)
-with icon: 
-    st.markdown('''
-        ![pokeball-icon](https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png)
-    ''')
 
-# with user_input:
-#     pokedex_num = st.text_input('Pokedex Number: ', placeholder="Enter Pokedex Number", on_change=None)
+user_input, icon = st.columns(2)
+with icon:
+    st.markdown('''
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" alt="pokeball-icon" width="100" style="display: block; margin: auto;">
+    ''', unsafe_allow_html=True)
 
 with user_input:
     pokedex_num = st.number_input('Pokedex Number: ', min_value=1 , max_value=898, step=1)
@@ -48,52 +31,43 @@ else:
 
 with image:
     st.markdown(f"""
-        ## {selected_pokemon['name']}
-        ![pokemon-image-url](https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/{image_url_id})
-    """)
-    st.caption('Image credits: https://www.pokemon.com')
-    
+        <div style="text-align: center;">
+            <h2>{selected_pokemon['name']}</h2>
+            <img src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/{image_url_id}" alt="{selected_pokemon['name']}" style="width: 300px;">
+            <p style="font-size: 12px; color: gray;">Image credits: <a href="https://www.pokemon.com/" target="_blank">https://www.pokemon.com/</a></p>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Pie Chart
+labels = 'Hp', 'Attack', 'Defense', 'SP Attack', 'SP Defense', 'Speed'
+sizes = selected_pokemon[['hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed']]
+
+fig2, ax = plt.subplots()
+ax.pie(sizes, labels=labels)
+
+st.subheader('Stats Pie Chart')
+st.caption("Find out more about this pokemon's strength and weaknesses!")
+st.pyplot(fig2)
+
+st.markdown('''---''')
+
+# Scatter Plot
 sample_pokemon = df.sample(5)
-sample_pokemon = pd.concat([sample_pokemon, selected_pokemon])
 
 x = [1, 2, 3, 4]
 y = [1, 2, 3, 4]
 
-# Scatter Plot
-# plot = plt.scatter(sample_pokemon['weight_kg'], sample_pokemon['height_m'])
-# plt.figure(figsize=(10, 6))
-# plt.title("Pokemon Height vs. Weight")
-# plt.xlabel("Weight")
-# plt.ylabel("Height")
-
-# st.pyplot(plot)
-
 fig,ax = plt.subplots()
-# ax.scatter(sample_pokemon['weight_kg'], sample_pokemon['height_m'])
-# plt.xlabel('Weight / kg')
-# plt.ylabel('Height / m')
-
-# for i in range(len(sample_pokemon)):
-#     plt.text(sample_pokemon.loc[[i]], sample_pokemon.loc[[i]], sample_pokemon.loc[[i]])
 
 for i, row in sample_pokemon.iterrows(): 
-
-    if i == 6:
-        plt.scatter(row['height_m'], row['weight_kg'], color='red')
-    else:
-        plt.scatter(row['height_m'], row['weight_kg'], color='blue')
-
-    plt.text(row['height_m'], row['weight_kg'], '  ' + row['name'])
-
+    plt.scatter(row['height_m'], row['weight_kg'], color='blue')
+    plt.text(row['height_m'], row['weight_kg'], '    ' + str(row['name']))
+plt.scatter(selected_pokemon['height_m'], selected_pokemon['weight_kg'], color='red')
+plt.text(selected_pokemon['height_m'], selected_pokemon['weight_kg'], '   '+str(selected_pokemon['name']))
 
 plt.xlabel('Weight / kg')
 plt.ylabel('Height / m')
+
+st.subheader('Pokemon Height vs Weight')
+st.caption('See how your chosen pokemon compares with a random selection of others!')
 st.pyplot(fig)
-
-# ------- SIDEBAR ---------
-
-with st.sidebar:
-    # History of Pokedex Searchs
-    st.write('Searching History:')
-    for key in search_history.keys():
-        st.write(f'search_history{[key]}')
